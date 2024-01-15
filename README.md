@@ -72,9 +72,11 @@ Type "help", "copyright", "credits" or "license" for more information.
 
 ## Troubleshooting
 
-Building Python with a specifc OpenSSL version can be pretty tedious. If building OpenSSL using `--prefix=/some/path`, ensure that the Python build reflects this by adding `--with-openssl=/some/path/openssl` to the `configure`.
+Building Python with a specifc OpenSSL version can be pretty tedious. 
 
-Also, adding `-Wl,-rpath=/opt/python-fips/lib` to `LDFLAGS` during the Python `./configure` step along with `echo "/opt/python-fips/lib" > /etc/ld.so.conf.d/python.conf` + `ldconfig -v` can resolve some library issues (and even correctly detecting the new Python installation).
+If building OpenSSL using `--prefix=/some/path`, ensure that the Python build reflects this by adding `--with-openssl=/some/path/openssl` to the `configure` step.
+
+Also, adding `-Wl,-rpath=/opt/python-fips/lib` to `LDFLAGS` during the Python `./configure` step along with `echo "/opt/python-fips/lib" > /etc/ld.so.conf.d/python.conf` + `ldconfig -v` can resolve some library issues (and even enable the correct detection of the new Python installation).
 
 More discussing on this can be found here:
 - https://stackoverflow.com/a/38781440
@@ -82,6 +84,8 @@ More discussing on this can be found here:
 The most common issue I ran into while building this Dockerfile (which was much harder than doing locally in a VM, even in WSL2 or in EC2) was that Python would build against the wrong OpenSSL version or the Python installation would not be the correct one (i.e., the system Python -- even when overwriting it or using `make altinstall`).
 
 The configuration in the `Dockerfile` works and can serve as a starting point for other implementations.
+
+Something to note: the feedback loop for doing cross-arch builds on an M1 Mac is very slow (25-30 minutes E2E). For troubleshooting, starting a container that has already been built and trying new/different commands is faster than building from scratch each time. This is especially useful if OpenSSL has been installed correctly but Python isn't building as expected.
 
 ## Acknowledgements
 
