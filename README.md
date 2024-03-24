@@ -3,7 +3,7 @@ Dockerfile(s) for experiementing with Python x FIPS
 
 ## Getting started
 
-The initial Dockerfile is based on Rocky Linux and is compr
+The initial Dockerfile is based on Rocky Linux.
 
 To build the image, either run `make build` or run the full `docker buildx build` command:
 ```sh
