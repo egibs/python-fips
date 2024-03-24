@@ -6,9 +6,9 @@ ARG PYTHON_VERSION="3.9.18"
 
 RUN microdnf -y update \
     && microdnf install -y \
-        patchutils \
-        tar \
-        wget
+    patchutils \
+    tar \
+    wget
 
 WORKDIR /fips
 
@@ -37,21 +37,21 @@ COPY --from=patch /fips/Python-${PYTHON_VERSION} ./Python-${PYTHON_VERSION}
 # Install dependencies
 RUN microdnf -y update \
     && microdnf -y install \
-        autoconf \
-        automake \
-        bzip2-devel \
-        diffutils \
-        gcc \
-        libffi \
-        libffi-devel \
-        libjpeg-devel \
-        libssh-devel \
-        libtool \
-        libxml2-devel \
-        libxslt-devel \
-        make \
-        wget \
-        zlib-devel \
+    autoconf \
+    automake \
+    bzip2-devel \
+    diffutils \
+    gcc \
+    libffi \
+    libffi-devel \
+    libjpeg-devel \
+    libssh-devel \
+    libtool \
+    libxml2-devel \
+    libxslt-devel \
+    make \
+    wget \
+    zlib-devel \
     && microdnf clean all
 
 # Download archives
@@ -60,7 +60,7 @@ RUN wget https://www.openssl.org/source/old/fips/${OPENSSL_FIPS_VERSION}.tar.gz 
 
 # Extract archives
 RUN tar -xzf ${OPENSSL_FIPS_VERSION}.tar.gz \
-    && tar -xzf ${OPENSSL_VERSION}.tar.gz 
+    && tar -xzf ${OPENSSL_VERSION}.tar.gz
 
 # Build and Install OpenSSL FIPS Module
 RUN cd ${OPENSSL_FIPS_VERSION} \
