@@ -4,13 +4,13 @@ diff -aur ./Lib/ssl.py ./Lib/ssl.py
 @@ -111,6 +111,11 @@
      # LibreSSL does not provide RAND_egd
      pass
- 
+
 +try:
 +    from _ssl import FIPS_mode, FIPS_mode_set
 +except ImportError as e:
 +    sys.stderr.write('error in importing\n')
 +    sys.stderr.write(str(e))
- 
+
  from _ssl import (
      HAS_SNI, HAS_ECDH, HAS_NPN, HAS_ALPN, HAS_SSLv2, HAS_SSLv3, HAS_TLSv1,
 diff -aur ./Modules/Setup ./Modules/Setup
@@ -18,11 +18,11 @@ diff -aur ./Modules/Setup ./Modules/Setup
 +++ ./Modules/Setup	2021-03-02 04:24:28.071717000 +0000
 @@ -207,14 +207,14 @@
  #_csv _csv.c
- 
+
  # Socket module helper for socket(2)
 -#_socket socketmodule.c
 +_socket socketmodule.c
- 
+
  # Socket module helper for SSL support; you must comment out the other
  # socket line above, and possibly edit the SSL variable:
 -#SSL=/usr/local/ssl
@@ -33,7 +33,7 @@ diff -aur ./Modules/Setup ./Modules/Setup
 +_ssl _ssl.c \
 +	-DUSE_SSL -I$(SSL)/include -I$(SSL)/include/openssl \
 +	-L$(SSL)/lib -lssl -lcrypto
- 
+
  # The crypt module is now disabled by default because it breaks builds
  # on many systems (where -lcrypt is needed), e.g. Linux (I believe).
 diff -aur ./Modules/_ssl.c ./Modules/_ssl.c
@@ -42,7 +42,7 @@ diff -aur ./Modules/_ssl.c ./Modules/_ssl.c
 @@ -5394,6 +5394,20 @@
      return PyLong_FromLong(RAND_status());
  }
- 
+
 +static PyObject *
 +_ssl_FIPS_mode_impl(PyObject *module) {
 +    return PyLong_FromLong(FIPS_mode());
@@ -68,14 +68,14 @@ diff -aur ./Modules/_ssl.c ./Modules/_ssl.c
 +    _SSL_FIPS_MODE_SET_METHODDEF
      {NULL,                  NULL}            /* Sentinel */
  };
- 
+
 diff -aur ./Modules/clinic/_ssl.c.h ./Modules/clinic/_ssl.c.h
 --- ./Modules/clinic/_ssl.c.h	2020-10-05 15:07:58.000000000 +0000
 +++ ./Modules/clinic/_ssl.c.h	2021-03-02 04:27:06.120295000 +0000
 @@ -1204,6 +1204,45 @@
      return _ssl_RAND_status_impl(module);
  }
- 
+
 +PyDoc_STRVAR(_ssl_FIPS_mode__doc__,
 +"FIPS Mode");
 +
@@ -116,5 +116,5 @@ diff -aur ./Modules/clinic/_ssl.c.h ./Modules/clinic/_ssl.c.h
 +}
 +
  #if !defined(OPENSSL_NO_EGD)
- 
+
  PyDoc_STRVAR(_ssl_RAND_egd__doc__,
