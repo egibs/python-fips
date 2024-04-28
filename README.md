@@ -30,7 +30,7 @@ docker buildx build -f Dockerfile-3.11.wolfi . -t python-fips-wolfi-3.11:latest
 The image is comprised of two stages:
 
 1. `patch`
-2. primary/build
+2. `primary/build`
 
 The `patch` stage downloads the Python archive and applies the contents of `fips.patch` to the necessary files. The Python code is copied over into the primary stage where it is built after OpenSSL.
 
