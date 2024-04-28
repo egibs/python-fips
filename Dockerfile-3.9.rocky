@@ -12,7 +12,7 @@ RUN microdnf -y update \
 
 WORKDIR /fips
 
-COPY fips.patch .
+COPY fips_3.9.patch fips.patch
 RUN wget https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tgz \
     && tar -xzf Python-${PYTHON_VERSION}.tgz \
     && cd Python-${PYTHON_VERSION} \
@@ -84,7 +84,7 @@ RUN cd ${OPENSSL_VERSION} \
 
 # Build and Install Python
 RUN cd Python-${PYTHON_VERSION} \
-    && LDFLAGS="-L/usr/local/lib/ -L/usr/local/lib64/ -Wl,-rpath=/opt/python-fips/lib" LD_LIBRARY_PATH="/usr/local/lib/:/usr/local/lib64/" CPPFLAGS="-I/usr/local/include -I/usr/local/ssl/include/openssl" ./configure --enable-shared --enable-optimizations --with-builtin-hashlib-hashes=sha1,sha256,sha512,sha3,blake2 --prefix=/opt/python-fips \
+    && LDFLAGS="-L/usr/local/lib/ -L/usr/local/lib64/ -Wl,-rpath=/opt/python-fips/lib" LD_LIBRARY_PATH="/usr/local/lib/:/usr/local/lib64/" CPPFLAGS="-I/usr/local/include -I/usr/local/ssl/include" ./configure --enable-shared --enable-optimizations --with-builtin-hashlib-hashes=sha1,sha256,sha512,sha3,blake2 --prefix=/opt/python-fips \
     && make \
     && make install \
     && echo "/opt/python-fips/lib" > /etc/ld.so.conf.d/python.conf \
