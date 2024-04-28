@@ -1,3 +1,6 @@
+# Sourced from: https://gitlab.com/redhat/centos-stream/rpms/python3.12/-/blob/c8s/00329-fips.patch?ref_type=heads
+# Modified diffs from upstream:
+# - Lib/hmac.py
 From 5cedde59cde3f05af798a7cb5bc722cb0deb4835 Mon Sep 17 00:00:00 2001
 From: Charalampos Stratakis <cstratak@redhat.com>
 Date: Thu, 12 Dec 2019 16:58:31 +0100
