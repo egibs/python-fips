@@ -10,12 +10,12 @@ Build any of the supported Dockerfiles via their respective Makefile targets.
 
 | Python Version | Linux Distribution | OpenSSL Version | Architecture
 | --- | --- | --- | --- |
-| `3.9.19` | Rocky 9 | `1.0.2u` (Base) <b> `2.0.16` (FIPS provider) | `linux/amd64`
-| `3.9.19` | Wolfi | `1.0.2.u` (Base) <b> `2.0.16` (FIPS provider) | `linux/amd64`
-| `3.11.9` | Rocky 9 | `3.0.9` | `linux/amd64` <b> `linux/arm64`
-| `3.11.9` | Wolfi | `3.0.9` | `linux/amd64` <b> `linux/arm64`
-| `3.12.3` | Rocky 9 | `3.0.9` | `linux/amd64` <b> `linux/arm64`
-| `3.12.3` | Wolfi | `3.0.9` | `linux/amd64` <b> `linux/arm64`
+| `3.9.19` | Rocky 9 | `1.0.2u` (Base) </b> `2.0.16` (FIPS provider) | `linux/amd64`
+| `3.9.19` | Wolfi | `1.0.2.u` (Base) </b> `2.0.16` (FIPS provider) | `linux/amd64`
+| `3.11.9` | Rocky 9 | `3.0.9` | `linux/amd64` </b> `linux/arm64`
+| `3.11.9` | Wolfi | `3.0.9` | `linux/amd64` </b> `linux/arm64`
+| `3.12.3` | Rocky 9 | `3.0.9` | `linux/amd64` </b> `linux/arm64`
+| `3.12.3` | Wolfi | `3.0.9` | `linux/amd64` </b> `linux/arm64`
 
 > OpenSSL `3.0.9` is the latest FIPS-approved version of OpenSSL; while it is possible to use the latest OpenSSL release and use `3.0.9` to handle the FIPS provider portion, it's not approved or supported.
 
