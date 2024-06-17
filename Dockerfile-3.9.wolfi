@@ -1,6 +1,6 @@
 # Patch Python to support OpenSSL FIPS module
 # Patchutils installs Python which we want to avoid in the final image
-FROM --platform=$TARGETPLATFORM cgr.dev/chainguard/wolfi-base as patch
+FROM --platform=$TARGETPLATFORM cgr.dev/chainguard/wolfi-base@sha256:3eff851ab805966c768d2a8107545a96218426cee1e5cc805865505edbe6ce92 as patch
 
 ARG PYTHON_VERSION="3.9.19"
 
@@ -19,7 +19,7 @@ RUN wget https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VER
     && cd -
 
 # Main stage
-FROM --platform=$TARGETPLATFORM cgr.dev/chainguard/wolfi-base as build
+FROM --platform=$TARGETPLATFORM cgr.dev/chainguard/wolfi-base@sha256:3eff851ab805966c768d2a8107545a96218426cee1e5cc805865505edbe6ce92 as build
 
 ARG OPENSSL_BASE_VERSION="1.0.2"
 ARG OPENSSL_FIPS_VERSION="openssl-fips-2.0.16"

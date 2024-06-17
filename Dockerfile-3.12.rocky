@@ -1,6 +1,6 @@
 # Patch Python to support OpenSSL FIPS module
 # Patchutils installs Python which we want to avoid in the final image
-FROM --platform=$TARGETPLATFORM rockylinux:9-minimal as patch
+FROM --platform=$TARGETPLATFORM rockylinux:9-minimal@sha256:305de618a5681ff75b1d608fd22b10f362867dff2f550a4f1d427d21cd7f42b4 as patch
 
 ARG PYTHON_VERSION="3.12.3"
 
@@ -20,7 +20,7 @@ RUN wget https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VER
     && cd -
 
 # Main stage
-FROM --platform=$TARGETPLATFORM rockylinux:9-minimal
+FROM --platform=$TARGETPLATFORM rockylinux:9-minimal@sha256:305de618a5681ff75b1d608fd22b10f362867dff2f550a4f1d427d21cd7f42b4 as build
 
 ARG OPENSSL_BASE_FIPS_VERSION="3.0.9"
 ARG OPENSSL_FIPS_VERSION="openssl-${OPENSSL_BASE_FIPS_VERSION}"
