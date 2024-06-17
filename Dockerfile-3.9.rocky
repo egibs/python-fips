@@ -98,3 +98,8 @@ RUN python3 -m pip install wheel \
     && python3 -m pip install --upgrade pip setuptools \
     && CRYPTOGRAPHY_DONT_BUILD_RUST=1 CFLAGS="-I/usr/local/ssl/include" LDFLAGS="-L/usr/local/ssl/lib" python3 -m pip wheel --no-binary :all: cryptography==3.0 \
     && CRYPTOGRAPHY_DONT_BUILD_RUST=1 CFLAGS="-I/usr/local/ssl/include" LDFLAGS="-L/usr/local/ssl/lib" python3 -m pip install cryptography-3.0-cp39-cp39-linux_x86_64.whl
+
+RUN groupadd python && useradd -m -g python python \
+    && install -d -o python -g python /home/python
+
+USER python

@@ -2,8 +2,6 @@
 # Patchutils installs Python which we want to avoid in the final image
 FROM --platform=$TARGETPLATFORM cgr.dev/chainguard/wolfi-base as patch
 
-USER root
-
 ARG PYTHON_VERSION="3.11.9"
 
 RUN apk update \
@@ -106,3 +104,8 @@ RUN python3 -m pip install wheel \
 
 # Overwrite the default OpenSSL configuration
 COPY openssl3.cnf /usr/local/ssl/openssl.cnf
+
+RUN addgroup python && adduser -D -G python python \
+    && install -d -o python -g python /home/python
+
+USER python

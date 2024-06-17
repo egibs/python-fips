@@ -91,3 +91,8 @@ RUN python3 -m pip install wheel \
 
 # Overwrite the default OpenSSL configuration
 COPY openssl3.cnf /usr/local/ssl/openssl.cnf
+
+RUN groupadd python && useradd -m -g python python \
+    && install -d -o python -g python /home/python
+
+USER python
