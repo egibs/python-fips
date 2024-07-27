@@ -16,7 +16,7 @@ build-wolfi-3.11:
 build-3.12:
 	docker buildx build -f python-3.12/rocky/Dockerfile . -t python-fips-3.12:latest
 build-wolfi-3.12:
-	docker buildx build -f python-3.12/wolfi/Dockerfile -t python-fips-wolfi-3.12:latest
+	docker buildx build -f python-3.12/wolfi/Dockerfile . -t python-fips-wolfi-3.12:latest
 
 ### All ###
 build:
