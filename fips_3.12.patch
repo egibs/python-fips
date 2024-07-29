@@ -1,10 +1,8 @@
 # Sourced from: https://gitlab.com/redhat/centos-stream/rpms/python3.12/-/blob/c8s/00329-fips.patch?ref_type=heads
-# Modified diffs from upstream:
-# - Lib/hmac.py
-From 5cedde59cde3f05af798a7cb5bc722cb0deb4835 Mon Sep 17 00:00:00 2001
+From 43ce74d971fad62db6ccd723fe6b01da9c7ff407 Mon Sep 17 00:00:00 2001
 From: Charalampos Stratakis <cstratak@redhat.com>
 Date: Thu, 12 Dec 2019 16:58:31 +0100
-Subject: [PATCH 1/6] Expose blake2b and blake2s hashes from OpenSSL
+Subject: [PATCH 1/5] Expose blake2b and blake2s hashes from OpenSSL
 
 These aren't as powerful as Python's own implementation, but they can be
 used under FIPS.
@@ -254,13 +252,13 @@ index fb61a44..1e42b87 100644
 -/*[clinic end generated code: output=b339e255db698147 input=a9049054013a1b77]*/
 +/*[clinic end generated code: output=1d988d457a8beebe input=a9049054013a1b77]*/
 -- 
-2.43.0
+2.45.0
 
 
-From 2a12baa9e201f54560ec99ad5ee1fa5b0006aa39 Mon Sep 17 00:00:00 2001
+From 6872b634078a2c69644235781ebffb07f8edcb83 Mon Sep 17 00:00:00 2001
 From: Petr Viktorin <pviktori@redhat.com>
 Date: Thu, 25 Jul 2019 17:19:06 +0200
-Subject: [PATCH 2/6] Disable Python's hash implementations in FIPS mode,
+Subject: [PATCH 2/5] Disable Python's hash implementations in FIPS mode,
  forcing OpenSSL
 
 ---
@@ -448,10 +446,10 @@ index a8bad9d..1b1d937 100644
 +    if (_Py_hashlib_fips_error(exc, name)) return NULL; \
 +} while (0)
 diff --git a/configure.ac b/configure.ac
-index 1876f77..1875d1e 100644
+index 65ad1c2..b5f9ab5 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -7439,7 +7439,8 @@ PY_STDLIB_MOD([_sha2],
+@@ -7463,7 +7463,8 @@ PY_STDLIB_MOD([_sha2],
  PY_STDLIB_MOD([_sha3], [test "$with_builtin_sha3" = yes])
  PY_STDLIB_MOD([_blake2],
    [test "$with_builtin_blake2" = yes], [],
@@ -462,13 +460,13 @@ index 1876f77..1875d1e 100644
  PY_STDLIB_MOD([_crypt],
    [], [test "$ac_cv_crypt_crypt" = yes],
 -- 
-2.43.0
+2.45.0
 
 
-From bca05b7fdb8dcab21ef80db1d59dd5daa835d84b Mon Sep 17 00:00:00 2001
+From f904abdd7a607282c2cdfd18288045cedfa28414 Mon Sep 17 00:00:00 2001
 From: Charalampos Stratakis <cstratak@redhat.com>
 Date: Fri, 29 Jan 2021 14:16:21 +0100
-Subject: [PATCH 3/6] Use python's fall back crypto implementations only if we
+Subject: [PATCH 3/5] Use python's fall back crypto implementations only if we
  are not in FIPS mode
 
 ---
@@ -555,13 +553,13 @@ index dd61a9a..6031b02 100644
          get_builtin_constructor = getattr(hashlib,
                                            '__get_builtin_constructor')
 -- 
-2.43.0
+2.45.0
 
 
-From c9a79f0aafd28677e3e0b8a1f6410105a71ff071 Mon Sep 17 00:00:00 2001
+From 9bf0a53b7831409613c44fd7feecb56476f5e5e7 Mon Sep 17 00:00:00 2001
 From: Charalampos Stratakis <cstratak@redhat.com>
 Date: Wed, 31 Jul 2019 15:43:43 +0200
-Subject: [PATCH 4/6] Test equivalence of hashes for the various digests with
+Subject: [PATCH 4/5] Test equivalence of hashes for the various digests with
  usedforsecurity=True/False
 
 ---
@@ -715,13 +713,13 @@ index 6031b02..5bd5297 100644
  class KDFTests(unittest.TestCase):
  
 -- 
-2.43.0
+2.45.0
 
 
-From e972a838729ea84a0f2e0ca8e88ae1bfc129e7d8 Mon Sep 17 00:00:00 2001
+From 8a76571515a64a57b4ea0586ae8376cf2ef0ac60 Mon Sep 17 00:00:00 2001
 From: Petr Viktorin <pviktori@redhat.com>
 Date: Mon, 26 Aug 2019 19:39:48 +0200
-Subject: [PATCH 5/6] Guard against Python HMAC in FIPS mode
+Subject: [PATCH 5/5] Guard against Python HMAC in FIPS mode
 
 ---
  Lib/hmac.py           | 13 +++++++++----
@@ -729,7 +727,7 @@ Subject: [PATCH 5/6] Guard against Python HMAC in FIPS mode
  2 files changed, 19 insertions(+), 4 deletions(-)
 
 diff --git a/Lib/hmac.py b/Lib/hmac.py
-index 8b4f920..20ef96c 100644
+index 8b4eb2f..e8e4864 100644
 --- a/Lib/hmac.py
 +++ b/Lib/hmac.py
 @@ -16,8 +16,9 @@ else:
@@ -744,7 +742,14 @@ index 8b4f920..20ef96c 100644
  
  # The size of the digests returned by HMAC depends on the underlying
  # hashing module used.  Use digest_size from the instance of HMAC instead.
-@@ -55,10 +56,12 @@ class HMAC:
+@@ -48,17 +49,18 @@ class HMAC:
+                    msg argument.  Passing it as a keyword argument is
+                    recommended, though not required for legacy API reasons.
+         """
+-
+         if not isinstance(key, (bytes, bytearray)):
+             raise TypeError("key: expected bytes or bytearray, but got %r" % type(key).__name__)
+ 
          if not digestmod:
              raise TypeError("Missing required argument 'digestmod'.")
  
@@ -758,16 +763,6 @@ index 8b4f920..20ef96c 100644
                  self._init_old(key, msg, digestmod)
          else:
              self._init_old(key, msg, digestmod)
-@@ -69,6 +72,9 @@ class HMAC:
-         self.block_size = self._hmac.block_size
- 
-     def _init_old(self, key, msg, digestmod):
-+        if _hashopenssl.get_fips_mode():
-+            # In FIPS mode, use OpenSSL anyway: raise the appropriate error
-+            return self._init_hmac(key, msg, digestmod)
-         if callable(digestmod):
-             digest_cons = digestmod
-         elif isinstance(digestmod, str):
 @@ -69,6 +71,9 @@ class HMAC:
          self.block_size = self._hmac.block_size
  
@@ -779,7 +774,7 @@ index 8b4f920..20ef96c 100644
              digest_cons = digestmod
          elif isinstance(digestmod, str):
 diff --git a/Lib/test/test_hmac.py b/Lib/test/test_hmac.py
-index a39a2c4..b7b24ab 100644
+index 1502fba..7997073 100644
 --- a/Lib/test/test_hmac.py
 +++ b/Lib/test/test_hmac.py
 @@ -5,6 +5,7 @@ import hashlib
@@ -818,7 +813,7 @@ index a39a2c4..b7b24ab 100644
      @unittest.skipUnless(sha256_module is not None, 'need _sha256')
      def test_with_sha256_module(self):
          h = hmac.HMAC(b"key", b"hash this!", digestmod=sha256_module.sha256)
-@@ -481,6 +489,7 @@ class SanityTestCase(unittest.TestCase):
+@@ -489,6 +497,7 @@ class UpdateTestCase(unittest.TestCase):
  
  class CopyTestCase(unittest.TestCase):
  
@@ -826,7 +821,7 @@ index a39a2c4..b7b24ab 100644
      @hashlib_helper.requires_hashdigest('sha256')
      def test_attributes_old(self):
          # Testing if attributes are of same type.
-@@ -492,6 +501,7 @@ class CopyTestCase(unittest.TestCase):
+@@ -500,6 +509,7 @@ class CopyTestCase(unittest.TestCase):
          self.assertEqual(type(h1._outer), type(h2._outer),
              "Types of outer don't match.")
  
@@ -835,269 +830,5 @@ index a39a2c4..b7b24ab 100644
      def test_realcopy_old(self):
          # Testing if the copy method created a real copy.
 -- 
-2.43.0
+2.45.0
 
-
-From b12202196a78b877dcd32cfea273051b60038a41 Mon Sep 17 00:00:00 2001
-From: Petr Viktorin <encukou@gmail.com>
-Date: Wed, 25 Aug 2021 16:44:43 +0200
-Subject: [PATCH 6/6] Disable hash-based PYCs in FIPS mode
-
-If FIPS mode is on, we can't use siphash-based HMAC
-(_Py_KeyedHash), so:
-
-- Unchecked hash PYCs can be imported, but not created
-- Checked hash PYCs can not be imported nor created
-- The default mode is timestamp-based PYCs, even if
-  SOURCE_DATE_EPOCH is set.
-
-If FIPS mode is off, there are no changes in behavior.
-
-Resolves: https://bugzilla.redhat.com/show_bug.cgi?id=1835169
----
- Lib/py_compile.py                             |  4 +++-
- Lib/test/support/__init__.py                  | 14 +++++++++++++
- Lib/test/test_cmd_line_script.py              |  2 ++
- Lib/test/test_compileall.py                   | 11 +++++++++-
- .../test_importlib/source/test_file_loader.py |  6 ++++++
- Lib/test/test_py_compile.py                   | 11 ++++++++--
- Lib/test/test_zipimport.py                    |  2 ++
- Python/import.c                               | 20 +++++++++++++++++++
- 8 files changed, 66 insertions(+), 4 deletions(-)
-
-diff --git a/Lib/py_compile.py b/Lib/py_compile.py
-index 388614e..fd9a139 100644
---- a/Lib/py_compile.py
-+++ b/Lib/py_compile.py
-@@ -70,7 +70,9 @@ class PycInvalidationMode(enum.Enum):
- 
- 
- def _get_default_invalidation_mode():
--    if os.environ.get('SOURCE_DATE_EPOCH'):
-+    import _hashlib
-+    if (os.environ.get('SOURCE_DATE_EPOCH') and not
-+          _hashlib.get_fips_mode()):
-         return PycInvalidationMode.CHECKED_HASH
-     else:
-         return PycInvalidationMode.TIMESTAMP
-diff --git a/Lib/test/support/__init__.py b/Lib/test/support/__init__.py
-index fd9265c..fcd1ea7 100644
---- a/Lib/test/support/__init__.py
-+++ b/Lib/test/support/__init__.py
-@@ -2346,6 +2346,20 @@ def sleeping_retry(timeout, err_msg=None, /,
-         delay = min(delay * 2, max_delay)
- 
- 
-+def fails_in_fips_mode(expected_error):
-+    import _hashlib
-+    if _hashlib.get_fips_mode():
-+        def _decorator(func):
-+            def _wrapper(self, *args, **kwargs):
-+                with self.assertRaises(expected_error):
-+                    func(self, *args, **kwargs)
-+            return _wrapper
-+    else:
-+        def _decorator(func):
-+            return func
-+    return _decorator
-+
-+
- @contextlib.contextmanager
- def adjust_int_max_str_digits(max_digits):
-     """Temporarily change the integer string conversion length limit."""
-diff --git a/Lib/test/test_cmd_line_script.py b/Lib/test/test_cmd_line_script.py
-index 1b58882..d6caff1 100644
---- a/Lib/test/test_cmd_line_script.py
-+++ b/Lib/test/test_cmd_line_script.py
-@@ -286,6 +286,7 @@ class CmdLineTest(unittest.TestCase):
-             self._check_script(zip_name, run_name, zip_name, zip_name, '',
-                                zipimport.zipimporter)
- 
-+    @support.fails_in_fips_mode(ImportError)
-     def test_zipfile_compiled_checked_hash(self):
-         with os_helper.temp_dir() as script_dir:
-             script_name = _make_test_script(script_dir, '__main__')
-@@ -296,6 +297,7 @@ class CmdLineTest(unittest.TestCase):
-             self._check_script(zip_name, run_name, zip_name, zip_name, '',
-                                zipimport.zipimporter)
- 
-+    @support.fails_in_fips_mode(ImportError)
-     def test_zipfile_compiled_unchecked_hash(self):
-         with os_helper.temp_dir() as script_dir:
-             script_name = _make_test_script(script_dir, '__main__')
-diff --git a/Lib/test/test_compileall.py b/Lib/test/test_compileall.py
-index 9cd92ad..4ec29a1 100644
---- a/Lib/test/test_compileall.py
-+++ b/Lib/test/test_compileall.py
-@@ -806,14 +806,23 @@ class CommandLineTestsBase:
-         out = self.assertRunOK('badfilename')
-         self.assertRegex(out, b"Can't list 'badfilename'")
- 
--    def test_pyc_invalidation_mode(self):
-+    @support.fails_in_fips_mode(AssertionError)
-+    def test_pyc_invalidation_mode_checked(self):
-         script_helper.make_script(self.pkgdir, 'f1', '')
-         pyc = importlib.util.cache_from_source(
-             os.path.join(self.pkgdir, 'f1.py'))
-+
-         self.assertRunOK('--invalidation-mode=checked-hash', self.pkgdir)
-         with open(pyc, 'rb') as fp:
-             data = fp.read()
-         self.assertEqual(int.from_bytes(data[4:8], 'little'), 0b11)
-+
-+    @support.fails_in_fips_mode(AssertionError)
-+    def test_pyc_invalidation_mode_unchecked(self):
-+        script_helper.make_script(self.pkgdir, 'f1', '')
-+        pyc = importlib.util.cache_from_source(
-+            os.path.join(self.pkgdir, 'f1.py'))
-+
-         self.assertRunOK('--invalidation-mode=unchecked-hash', self.pkgdir)
-         with open(pyc, 'rb') as fp:
-             data = fp.read()
-diff --git a/Lib/test/test_importlib/source/test_file_loader.py b/Lib/test/test_importlib/source/test_file_loader.py
-index f35adec..62087c6 100644
---- a/Lib/test/test_importlib/source/test_file_loader.py
-+++ b/Lib/test/test_importlib/source/test_file_loader.py
-@@ -16,6 +16,7 @@ import types
- import unittest
- import warnings
- 
-+from test import support
- from test.support.import_helper import make_legacy_pyc, unload
- 
- from test.test_py_compile import without_source_date_epoch
-@@ -237,6 +238,7 @@ class SimpleTest(abc.LoaderTests):
-                 loader.load_module('bad name')
- 
-     @util.writes_bytecode_files
-+    @support.fails_in_fips_mode(ImportError)
-     def test_checked_hash_based_pyc(self):
-         with util.create_modules('_temp') as mapping:
-             source = mapping['_temp']
-@@ -268,6 +270,7 @@ class SimpleTest(abc.LoaderTests):
-             )
- 
-     @util.writes_bytecode_files
-+    @support.fails_in_fips_mode(ImportError)
-     def test_overridden_checked_hash_based_pyc(self):
-         with util.create_modules('_temp') as mapping, \
-              unittest.mock.patch('_imp.check_hash_based_pycs', 'never'):
-@@ -293,6 +296,7 @@ class SimpleTest(abc.LoaderTests):
-             self.assertEqual(mod.state, 'old')
- 
-     @util.writes_bytecode_files
-+    @support.fails_in_fips_mode(ImportError)
-     def test_unchecked_hash_based_pyc(self):
-         with util.create_modules('_temp') as mapping:
-             source = mapping['_temp']
-@@ -323,6 +327,7 @@ class SimpleTest(abc.LoaderTests):
-             )
- 
-     @util.writes_bytecode_files
-+    @support.fails_in_fips_mode(ImportError)
-     def test_overridden_unchecked_hash_based_pyc(self):
-         with util.create_modules('_temp') as mapping, \
-              unittest.mock.patch('_imp.check_hash_based_pycs', 'always'):
-@@ -432,6 +437,7 @@ class BadBytecodeTest:
-                                                del_source=del_source)
-             test('_temp', mapping, bc_path)
- 
-+    @support.fails_in_fips_mode(ImportError)
-     def _test_partial_hash(self, test, *, del_source=False):
-         with util.create_modules('_temp') as mapping:
-             bc_path = self.manipulate_bytecode(
-diff --git a/Lib/test/test_py_compile.py b/Lib/test/test_py_compile.py
-index c4e6551..81fd962 100644
---- a/Lib/test/test_py_compile.py
-+++ b/Lib/test/test_py_compile.py
-@@ -141,13 +141,16 @@ class PyCompileTestsBase:
-             importlib.util.cache_from_source(bad_coding)))
- 
-     def test_source_date_epoch(self):
-+        import _hashlib
-         py_compile.compile(self.source_path, self.pyc_path)
-         self.assertTrue(os.path.exists(self.pyc_path))
-         self.assertFalse(os.path.exists(self.cache_path))
-         with open(self.pyc_path, 'rb') as fp:
-             flags = importlib._bootstrap_external._classify_pyc(
-                 fp.read(), 'test', {})
--        if os.environ.get('SOURCE_DATE_EPOCH'):
-+        if _hashlib.get_fips_mode():
-+            expected_flags = 0b00
-+        elif os.environ.get('SOURCE_DATE_EPOCH'):
-             expected_flags = 0b11
-         else:
-             expected_flags = 0b00
-@@ -178,7 +181,8 @@ class PyCompileTestsBase:
-         # Specifying optimized bytecode should lead to a path reflecting that.
-         self.assertIn('opt-2', py_compile.compile(self.source_path, optimize=2))
- 
--    def test_invalidation_mode(self):
-+    @support.fails_in_fips_mode(ImportError)
-+    def test_invalidation_mode_checked(self):
-         py_compile.compile(
-             self.source_path,
-             invalidation_mode=py_compile.PycInvalidationMode.CHECKED_HASH,
-@@ -187,6 +191,9 @@ class PyCompileTestsBase:
-             flags = importlib._bootstrap_external._classify_pyc(
-                 fp.read(), 'test', {})
-         self.assertEqual(flags, 0b11)
-+
-+    @support.fails_in_fips_mode(ImportError)
-+    def test_invalidation_mode_unchecked(self):
-         py_compile.compile(
-             self.source_path,
-             invalidation_mode=py_compile.PycInvalidationMode.UNCHECKED_HASH,
-diff --git a/Lib/test/test_zipimport.py b/Lib/test/test_zipimport.py
-index 14c1971..bcd1466 100644
---- a/Lib/test/test_zipimport.py
-+++ b/Lib/test/test_zipimport.py
-@@ -190,6 +190,7 @@ class UncompressedZipImportTestCase(ImportHooksBaseTestCase):
-                  TESTMOD + pyc_ext: (NOW, test_pyc)}
-         self.doTest(pyc_ext, files, TESTMOD)
- 
-+    @support.fails_in_fips_mode(ImportError)
-     def testUncheckedHashBasedPyc(self):
-         source = b"state = 'old'"
-         source_hash = importlib.util.source_hash(source)
-@@ -204,6 +205,7 @@ class UncompressedZipImportTestCase(ImportHooksBaseTestCase):
-             self.assertEqual(mod.state, 'old')
-         self.doTest(None, files, TESTMOD, call=check)
- 
-+    @support.fails_in_fips_mode(ImportError)
-     @unittest.mock.patch('_imp.check_hash_based_pycs', 'always')
-     def test_checked_hash_based_change_pyc(self):
-         source = b"state = 'old'"
-diff --git a/Python/import.c b/Python/import.c
-index 54232a1..236786b 100644
---- a/Python/import.c
-+++ b/Python/import.c
-@@ -3829,6 +3829,26 @@ static PyObject *
- _imp_source_hash_impl(PyObject *module, long key, Py_buffer *source)
- /*[clinic end generated code: output=edb292448cf399ea input=9aaad1e590089789]*/
- {
-+    PyObject *_hashlib = PyImport_ImportModule("_hashlib");
-+    if (_hashlib == NULL) {
-+        return NULL;
-+    }
-+    PyObject *fips_mode_obj = PyObject_CallMethod(_hashlib, "get_fips_mode", NULL);
-+    Py_DECREF(_hashlib);
-+    if (fips_mode_obj == NULL) {
-+        return NULL;
-+    }
-+    int fips_mode = PyObject_IsTrue(fips_mode_obj);
-+    Py_DECREF(fips_mode_obj);
-+    if (fips_mode < 0) {
-+        return NULL;
-+    }
-+    if (fips_mode) {
-+        PyErr_SetString(
-+            PyExc_ImportError,
-+            "hash-based PYC validation (siphash24) not available in FIPS mode");
-+        return NULL;
-+    };
-     union {
-         uint64_t x;
-         char data[sizeof(uint64_t)];
--- 
-2.43.0
