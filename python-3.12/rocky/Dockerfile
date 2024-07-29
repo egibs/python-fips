@@ -2,7 +2,7 @@
 # Patchutils installs Python which we want to avoid in the final image
 FROM --platform=$TARGETPLATFORM rockylinux:9-minimal@sha256:305de618a5681ff75b1d608fd22b10f362867dff2f550a4f1d427d21cd7f42b4 as patch
 
-ARG PYTHON_VERSION="3.12.3"
+ARG PYTHON_VERSION="3.12.4"
 
 RUN microdnf -y update \
     && microdnf install -y \
@@ -25,7 +25,7 @@ FROM --platform=$TARGETPLATFORM rockylinux:9-minimal@sha256:305de618a5681ff75b1d
 ARG OPENSSL_BASE_FIPS_VERSION="3.0.9"
 ARG OPENSSL_FIPS_VERSION="openssl-${OPENSSL_BASE_FIPS_VERSION}"
 ARG OPENSSL_VERSION="openssl-${OPENSSL_BASE_VERSION}"
-ARG PYTHON_VERSION="3.12.3"
+ARG PYTHON_VERSION="3.12.4"
 ARG TARGETPLATFORM
 
 ENV OPENSSL_FIPS=1
